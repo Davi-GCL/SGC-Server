@@ -4,17 +4,19 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SGC.Domain.Entities;
+
 
 namespace SGC.Infrastructure.Repositories
 {
-    public class TableRepository : ITableRepository
+    public class SqlServerTableRepository : ISqlServerTableRepository
     {
         private SqlConnection conn = new SqlConnection();
-        public void GetAllMetaData(object formConnection)
+        public IList<Table> GetAllMetaData(string connString)
         {
             try
             {
-                conn.ConnectionString = formConnection.ConnString;
+                conn.ConnectionString = connString;
 
                 //Verifica se a conexao está fechada ou já está aberta antes de conectar
                 if (conn.State == System.Data.ConnectionState.Closed)
@@ -24,7 +26,7 @@ namespace SGC.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                throw new Exception(ex.Message);
             }
 
 
@@ -61,7 +63,8 @@ namespace SGC.Infrastructure.Repositories
                     catch (Exception ex)
                     {
                         reader.Close();
-                        return BadRequest(ex.Message);
+                        conn.Close();
+                        throw new Exception(ex.Message);
                     }
                 }
                 reader.Close();
@@ -94,7 +97,7 @@ namespace SGC.Infrastructure.Repositories
 
 
             //tables.Add(new Table() { Catalog=catalog, Name=tableName, Columns= columns });
-            return Ok(tables);
+            return tables;
         }
     }
 }

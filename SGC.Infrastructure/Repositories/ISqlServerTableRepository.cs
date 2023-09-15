@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SGC.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace SGC.Infrastructure.Repositories
 {
-    public interface ITableRepository
+    public interface ISqlServerTableRepository
     {
-        public void GetAllMetaData();
+        public IList<Table> GetAllMetaData(string connString);
     }
 }
