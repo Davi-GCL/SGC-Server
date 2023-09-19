@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SGC.Infrastructure.Repositories
 {
-    public interface ISqlServerTableRepository
+    public interface ITableRepository
     {
         public IList<Table> GetAllMetaData(string connString);
     }

@@ -8,9 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Infra\**" />
     <Compile Remove="NovaPasta\**" />
+    <Content Remove="Infra\**" />
     <Content Remove="NovaPasta\**" />
+    <EmbeddedResource Remove="Infra\**" />
     <EmbeddedResource Remove="NovaPasta\**" />
+    <None Remove="Infra\**" />
     <None Remove="NovaPasta\**" />
   </ItemGroup>
 
@@ -21,8 +25,10 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Infra\" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\SGC.aplication\SGC.aplication.csproj" />
+		<ProjectReference Include="..\SGC.domain\SGC.domain.csproj" />
+		<ProjectReference Include="..\SGC.Infrastructure.IoC\SGC.Infrastructure.IoC.csproj" />
+	</ItemGroup>
 
 </Project>

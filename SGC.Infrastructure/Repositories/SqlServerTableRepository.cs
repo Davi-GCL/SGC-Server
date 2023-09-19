@@ -9,7 +9,7 @@ using SGC.Domain.Entities;
 
 namespace SGC.Infrastructure.Repositories
 {
-    public class SqlServerTableRepository : ISqlServerTableRepository
+    public class SqlServerTableRepository : ITableRepository
     {
         private SqlConnection conn = new SqlConnection();
         public IList<Table> GetAllMetaData(string connString)

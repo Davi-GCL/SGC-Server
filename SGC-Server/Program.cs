@@ -1,3 +1,6 @@
+using SGC.Infrastructure.IoC;
+using SGC.Infrastructure.Repositories;
+
 namespace SGC_Server
 {
     public class Program
@@ -13,6 +16,7 @@ namespace SGC_Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            DependencyContainer.RegisterServices(builder.Services, builder.Configuration);
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
