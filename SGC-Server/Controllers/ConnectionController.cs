@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Any;
 using SGC.Aplication.Services;
-using SGC.Infrastructure.Repositories;
+using SGC.Domain.Interfaces;
 using SGC_Server.Model;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -15,11 +15,12 @@ namespace SGC_Server.Controllers
     public class ConnectionController : ControllerBase
     {
         private readonly ITableRepository _sqlServerTableRepo;
-        private readonly ClassBuilderService _classBuilderService = new ClassBuilderService();
+        private readonly IClassBuilderService _classBuilderService;
 
-        public ConnectionController(ITableRepository SqlServerTableRepository)
+        public ConnectionController(ITableRepository SqlServerTableRepository, IClassBuilderService ClassBuilderService)
         {
             _sqlServerTableRepo = SqlServerTableRepository;
+            _classBuilderService = ClassBuilderService;
         }
 
         [HttpPost("/connect")]
@@ -28,10 +29,11 @@ namespace SGC_Server.Controllers
             return Ok(_sqlServerTableRepo.GetAllMetaData(formConnection.ConnString));
         }
 
-        [HttpGet("/class")]
-        public IActionResult BuildClass()
+        [HttpPost("/class")]
+        public IActionResult BuildClass([FromBody] FormConnection formConnection)
         {
-            return Ok(_classBuilderService.GenerateClass());
+            var tablesList = _sqlServerTableRepo.GetAllMetaData(formConnection.ConnString);
+            return Ok(_classBuilderService.GenerateClass(tablesList[0], "SGC.Aplication.Services", formConnection.Sgbd));
         }
     }
 }

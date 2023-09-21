@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SGC.Domain.Entities;
+using SGC.Domain.Interfaces;
 
 
 namespace SGC.Infrastructure.Repositories

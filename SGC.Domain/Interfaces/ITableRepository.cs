@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGC.Infrastructure.Repositories
+namespace SGC.Domain.Interfaces
 {
     public interface ITableRepository
     {
