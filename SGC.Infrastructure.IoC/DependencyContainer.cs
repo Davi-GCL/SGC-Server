@@ -13,6 +13,7 @@ namespace SGC.Infrastructure.IoC
         {
             services.AddScoped<ITableRepository, SqlServerTableRepository>();
             services.AddScoped<IClassBuilderService, ClassBuilderService>();
+            services.AddScoped<IFileService, FileService>();
         }
     }
 }

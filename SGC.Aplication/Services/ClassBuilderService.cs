@@ -25,7 +25,20 @@ namespace SGC.Aplication.Services
             {"text", "string"},
             {"bit", "bool" }
         };
-        private Dictionary<string, string> OracleTypes = new Dictionary<string, string>();
+        private Dictionary<string, string> OracleTypes = new Dictionary<string, string>()
+        {
+            {"integer","int"},
+            {"varchar", "string"},
+            {"varchar2","string"},
+            {"nvarchar2","string"},
+            {"clob","string"},
+            {"number","double"},
+            {"date","DateTime"},
+            {"timestamp", "DateTime"},
+            {"binary_float","float"},
+            {"binary_double","double"},
+
+        };
         
         public string GenerateClass(Table table, string namespaceName,int dbType)
         {
@@ -37,7 +50,7 @@ namespace SGC.Aplication.Services
 
             foreach(KeyValuePair<string,string> field in this.FieldsDict)
             {
-                propsBuild.AppendLine($"\t{field.Value} {field.Key} {getSetTemplate};");
+                propsBuild.AppendLine($"\t{field.Value} {field.Key} {getSetTemplate}");
             }
 
             StringBuilder classBuild = new StringBuilder();
@@ -64,7 +77,16 @@ namespace SGC.Aplication.Services
             {
                 foreach (var c in table.Columns)
                 {
-                    type = this.SqlServerTypes[c.Type];
+                    type = this.SqlServerTypes[c.Type.ToLower()];
+                    if (c.IsNullable == true) { type += "?"; } //Se a coluna for anulavel, adiciona a indicação de tipo anulavel do C#
+                    this.FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
+                }
+            }
+            else
+            {
+                foreach (var c in table.Columns)
+                {
+                    type = this.OracleTypes[c.Type.ToLower()];
                     if (c.IsNullable == true) { type += "?"; } //Se a coluna for anulavel, adiciona a indicação de tipo anulavel do C#
                     this.FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
                 }

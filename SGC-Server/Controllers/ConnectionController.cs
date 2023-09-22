@@ -16,24 +16,43 @@ namespace SGC_Server.Controllers
     {
         private readonly ITableRepository _sqlServerTableRepo;
         private readonly IClassBuilderService _classBuilderService;
+        private readonly IFileService _fileService;
 
-        public ConnectionController(ITableRepository SqlServerTableRepository, IClassBuilderService ClassBuilderService)
+        public ConnectionController(ITableRepository SqlServerTableRepository, IClassBuilderService ClassBuilderService, IFileService fileService)
         {
             _sqlServerTableRepo = SqlServerTableRepository;
             _classBuilderService = ClassBuilderService;
+            _fileService = fileService;
         }
 
         [HttpPost("/connect")]
         public IActionResult Connect([FromBody] FormConnection formConnection)
         {
-            return Ok(_sqlServerTableRepo.GetAllMetaData(formConnection.ConnString));
+            _sqlServerTableRepo.SetString(formConnection.ConnString);
+            return Ok(_sqlServerTableRepo.GetAllMetaData());
         }
 
         [HttpPost("/class")]
-        public IActionResult BuildClass([FromBody] FormConnection formConnection)
+        public IActionResult BuildClass([FromBody] FormTables formTables)
         {
-            var tablesList = _sqlServerTableRepo.GetAllMetaData(formConnection.ConnString);
-            return Ok(_classBuilderService.GenerateClass(tablesList[0], "SGC.Aplication.Services", formConnection.Sgbd));
+            var classString = "";
+            var tablesList = _sqlServerTableRepo.GetAllMetaData();
+
+            for(var i = 0; i < tablesList.Count; i++)
+            {
+                classString = _classBuilderService.GenerateClass(tablesList[i], "SGC.Aplication.Services", formConnection.Sgbd);
+                try
+                {
+                    _fileService.GenerateFile(tablesList[i].Name, classString);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            
+
+            return Ok(classString);
         }
     }
 }

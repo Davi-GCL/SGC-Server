@@ -9,6 +9,7 @@ namespace SGC.Domain.Interfaces
 {
     public interface ITableRepository
     {
-        public IList<Table> GetAllMetaData(string connString);
+        public void SetString(string value);
+        public IList<Table> GetAllMetaData();
     }
 }

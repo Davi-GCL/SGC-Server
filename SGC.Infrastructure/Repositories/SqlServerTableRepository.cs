@@ -13,7 +13,12 @@ namespace SGC.Infrastructure.Repositories
     public class SqlServerTableRepository : ITableRepository
     {
         private SqlConnection conn = new SqlConnection();
-        public IList<Table> GetAllMetaData(string connString)
+        public string connString { get; set; }
+        public void SetString(string value)
+        {
+            connString = value;
+        }
+        public IList<Table> GetAllMetaData()
         {
             try
             {
