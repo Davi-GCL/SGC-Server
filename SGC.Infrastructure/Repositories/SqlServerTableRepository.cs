@@ -13,16 +13,13 @@ namespace SGC.Infrastructure.Repositories
     public class SqlServerTableRepository : ITableRepository
     {
         private SqlConnection conn = new SqlConnection();
-        public string connString { get; set; }
-        public void SetString(string value)
+
+        public IList<Table> GetAllMetaData(string connString)
         {
-            connString = value;
-        }
-        public IList<Table> GetAllMetaData()
-        {
+            conn = new SqlConnection();
+            conn.ConnectionString = connString;
             try
             {
-                conn.ConnectionString = connString;
 
                 //Verifica se a conexao está fechada ou já está aberta antes de conectar
                 if (conn.State == System.Data.ConnectionState.Closed)
@@ -101,9 +98,68 @@ namespace SGC.Infrastructure.Repositories
                 columnGroup.Add(columns[i]);
             }
 
-
+            conn.Close ();
             //tables.Add(new Table() { Catalog=catalog, Name=tableName, Columns= columns });
             return tables;
+        }
+
+        public Table GetMetaDataByTableName(string connString ,string tableName)
+        {
+            conn = new SqlConnection();
+            conn.ConnectionString = connString;
+            try
+            {
+
+                //Verifica se a conexao está fechada ou já está aberta antes de conectar
+                if (conn.State == System.Data.ConnectionState.Closed)
+                {
+                    conn.Open();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            //cmd.CommandText = "SELECT * from INFORMATION_SCHEMA.TABLES";
+            dynamic result = "";
+            var tables = new List<Table>();
+            var columns = new List<Column>();
+            string catalog = "";
+
+            using (SqlCommand command = new SqlCommand($"select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='{tableName}'", conn))
+            {
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    catalog = reader.GetValue(0).ToString();
+                    //tableName = reader.GetValue(2).ToString();
+                    try
+                    {
+                        var column = new Column()
+                        {
+                            TableName = reader.GetValue(2).ToString(),
+                            Name = reader.GetValue(3).ToString(),
+                            IsPrimaryKey = false,
+                            IsNullable = reader.GetValue(6).ToString() == "YES" ? true : false,
+                            Type = reader.GetValue(7).ToString(),
+                            CharMaxLength = reader.GetValue(8) != DBNull.Value ? (int)reader.GetValue(8) : null,
+
+                        };
+
+                        columns.Add(column);
+                    }
+                    catch (Exception ex)
+                    {
+                        reader.Close();
+                        conn.Close();
+                        throw new Exception(ex.Message);
+                    }
+                }
+                reader.Close();
+
+                return new Table() { Catalog = catalog, Name = tableName, Columns = columns };
+            }
         }
     }
 }

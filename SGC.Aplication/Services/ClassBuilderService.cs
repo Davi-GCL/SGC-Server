@@ -42,6 +42,7 @@ namespace SGC.Aplication.Services
         
         public string GenerateClass(Table table, string namespaceName,int dbType)
         {
+        //Metodo que retorna uma string de classe escrita com base em uma tabela e suas colunas, considerando seus tipos baseado nos tipos de dado c#
             this.TableMap(table , dbType);
             string getSetTemplate = "{ get; set; }";
             

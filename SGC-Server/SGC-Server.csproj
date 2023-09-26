@@ -9,12 +9,16 @@
 
   <ItemGroup>
     <Compile Remove="Infra\**" />
+    <Compile Remove="Model\**" />
     <Compile Remove="NovaPasta\**" />
     <Content Remove="Infra\**" />
+    <Content Remove="Model\**" />
     <Content Remove="NovaPasta\**" />
     <EmbeddedResource Remove="Infra\**" />
+    <EmbeddedResource Remove="Model\**" />
     <EmbeddedResource Remove="NovaPasta\**" />
     <None Remove="Infra\**" />
+    <None Remove="Model\**" />
     <None Remove="NovaPasta\**" />
   </ItemGroup>
 

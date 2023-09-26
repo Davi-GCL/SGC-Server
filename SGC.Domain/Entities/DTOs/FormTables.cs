@@ -2,10 +2,14 @@
 {
     public class FormTables
     {
+        public int Sgbd { get; set; }
+        
+        public string ConnString { get; set; }
+
         public string DataBaseName { get; set; }
 
         public string Namespace { get; set; }
 
-        public string[] SelectedTables { get; set; }
+        public List<string> SelectedTablesNames { get; set; }
     }
 }

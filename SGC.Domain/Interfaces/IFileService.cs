@@ -8,6 +8,7 @@ namespace SGC.Domain.Interfaces
 {
     public interface IFileService
     {
+        //Utiliza uma classe escrita em uma string para criar um arquivo de classe na pasta ClassFiles
         public string GenerateFile(string className ,string classString);
     }
 }
