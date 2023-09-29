@@ -10,21 +10,19 @@
   <ItemGroup>
     <Compile Remove="Infra\**" />
     <Compile Remove="Model\**" />
-    <Compile Remove="NovaPasta\**" />
     <Content Remove="Infra\**" />
     <Content Remove="Model\**" />
-    <Content Remove="NovaPasta\**" />
     <EmbeddedResource Remove="Infra\**" />
     <EmbeddedResource Remove="Model\**" />
-    <EmbeddedResource Remove="NovaPasta\**" />
     <None Remove="Infra\**" />
     <None Remove="Model\**" />
-    <None Remove="NovaPasta\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.110" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
@@ -33,6 +31,10 @@
 		<ProjectReference Include="..\SGC.aplication\SGC.aplication.csproj" />
 		<ProjectReference Include="..\SGC.domain\SGC.domain.csproj" />
 		<ProjectReference Include="..\SGC.Infrastructure.IoC\SGC.Infrastructure.IoC.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Mapping\" />
 	</ItemGroup>
 
 </Project>

@@ -33,7 +33,7 @@ namespace SGC.Aplication.Services
                 throw ex;
             }
 
-            throw new Exception(fullPath.ToString());
+            return fullPath.ToString();
         }
     }
 }

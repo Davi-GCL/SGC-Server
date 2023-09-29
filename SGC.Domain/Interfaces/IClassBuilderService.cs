@@ -11,7 +11,7 @@ namespace SGC.Domain.Interfaces
     {
         
         public string GenerateClass(Table table, string namespaceName,int dbType);
-        public void TableMap(Table table, int dbType);
+        public Dictionary<string, string> TableMap(Table table, int dbType);
         public string TranslateType(string type);
 
     }

@@ -16,13 +16,15 @@ namespace SGC_Server.Controllers
     public class ConnectionController : ControllerBase
     {
         private readonly ITableRepository _sqlServerTableRepo;
+        private readonly ITableRepository _oracleTableRepo;
         private readonly IClassBuilderService _classBuilderService;
         private readonly IFileService _fileService;
         private FormConnection _connStorage = new FormConnection();
 
-        public ConnectionController(ITableRepository SqlServerTableRepository, IClassBuilderService ClassBuilderService, IFileService fileService)
+        public ConnectionController(ITableRepository SqlServerTableRepository, ITableRepository OracleTableRepo,IClassBuilderService ClassBuilderService, IFileService fileService)
         {
             _sqlServerTableRepo = SqlServerTableRepository;
+            _oracleTableRepo = OracleTableRepo;
             _classBuilderService = ClassBuilderService;
             _fileService = fileService;
             //_connStorage = new FormConnection();
@@ -32,8 +34,26 @@ namespace SGC_Server.Controllers
         public IActionResult Connect([FromBody] FormConnection formConnection)
         {
             _connStorage.ConnString = formConnection.ConnString;
-            //_sqlServerTableRepo.SetString(formConnection.ConnString);
-            return Ok(_sqlServerTableRepo.GetAllMetaData(formConnection.ConnString));
+            try
+            {
+                //Switch para utilizar o repository correspondente ao sgbd selecionado
+                switch (formConnection.Sgbd)
+                {
+                    case 1:
+                        return Ok(_sqlServerTableRepo.GetAllMetaData(formConnection.ConnString));
+                        //break;
+                    case 2:
+                        return Ok(_oracleTableRepo.GetAllMetaData(formConnection.ConnString));
+                        //break;
+                    default: return BadRequest("SGBD invalido!");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            
         }
 
         [HttpPost("/class")]
@@ -45,7 +65,18 @@ namespace SGC_Server.Controllers
             {         
                 foreach (var selectedTableName in formTables.SelectedTablesNames)
                 {
-                    table = _sqlServerTableRepo.GetMetaDataByTableName(formTables.ConnString, selectedTableName);
+                    //Switch para utilizar o repository correspondente ao sgbd selecionado
+                    switch (formTables.Sgbd)
+                    {
+                        case 1:
+                            table = _sqlServerTableRepo.GetMetaDataByTableName(formTables.ConnString, selectedTableName);
+                            break;
+                        case 2: 
+                            table = _oracleTableRepo.GetMetaDataByTableName(formTables.ConnString, selectedTableName);
+                            break;
+                        default: return BadRequest("SGBD invalido!");
+                    }
+
                     classString = _classBuilderService.GenerateClass(table, formTables.Namespace, formTables.Sgbd); //Retorna uma classe escrita em uma string
                     _fileService.GenerateFile(selectedTableName, classString); //Utiliza uma classe escrita em uma string para criar um arquivo de classe na pasta ClassFiles
 

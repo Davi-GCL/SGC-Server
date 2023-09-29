@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Oracle.ManagedDataAccess.Client;
 using SGC.Domain.Entities;
 using SGC.Domain.Interfaces;
 
 
 namespace SGC.Infrastructure.Repositories
 {
-    public class SqlServerTableRepository : ITableRepository
+    public class OracleTableRepository : ITableRepository
     {
-        private SqlConnection conn = new SqlConnection();
+        private OracleConnection? conn;
 
         public IList<Table> GetAllMetaData(string connString)
         {
-            conn = new SqlConnection();
-            conn.ConnectionString = connString;
+            conn = new OracleConnection(connString);
+            //conn.ConnectionString = connString;
             try
             {
                 //Verifica se a conexao está fechada ou já está aberta antes de conectar
@@ -33,30 +33,34 @@ namespace SGC.Infrastructure.Repositories
 
 
 
-            //cmd.CommandText = "SELECT * from INFORMATION_SCHEMA.TABLES";
+            //SELECT table_name  from all_tables where owner = 'SISCOM';
+            //SELECT* from ALL_TAB_COLUMNS where owner = 'SISCOM';
+            //cmd.CommandText = "SELECT table_name  from all_tables where owner = 'SISCOM'";
             dynamic result = "";
             var tables = new List<Table>();
             var columns = new List<Column>();
             string tableName = "";
             string catalog = "";
 
-            using (SqlCommand command = new SqlCommand("SELECT * from INFORMATION_SCHEMA.COLUMNS", conn))
+            using (OracleCommand command = new OracleCommand("select * from ALL_TAB_COLUMNS where owner = 'SISCOM'", conn))
             {
-                SqlDataReader reader = command.ExecuteReader();
+                
+                OracleDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
+                    
                     catalog = reader.GetValue(0).ToString();
                     //tableName = reader.GetValue(2).ToString();
                     try
                     {
                         var column = new Column()
                         {
-                            TableName = reader.GetValue(2).ToString(),
-                            Name = reader.GetValue(3).ToString(),
-                            IsPrimaryKey = false,
-                            IsNullable = reader.GetValue(6).ToString() == "YES" ? true : false,
-                            Type = reader.GetValue(7).ToString(),
-                            CharMaxLength = reader.GetValue(8) != DBNull.Value ? (int)reader.GetValue(8) : null,
+                            TableName = reader.GetValue(1).ToString(),
+                            Name = reader.GetValue(2).ToString(),
+                            IsPrimaryKey = reader.GetValue(32).ToString() == "YES" ? true : false,
+                            IsNullable = reader.GetValue(9).ToString() == "YES" ? true : false,
+                            Type = reader.GetValue(3).ToString(),
+                            CharMaxLength = reader.GetValue(26) != DBNull.Value ? Decimal.ToInt32( (decimal)reader.GetValue(26) ) : null,
 
                         };
 
@@ -97,14 +101,14 @@ namespace SGC.Infrastructure.Repositories
                 columnGroup.Add(columns[i]);
             }
 
-            conn.Close ();
+            conn.Close();
             //tables.Add(new Table() { Catalog=catalog, Name=tableName, Columns= columns });
             return tables;
         }
 
-        public Table GetMetaDataByTableName(string connString ,string tableName)
+        public Table GetMetaDataByTableName(string connString, string tableName)
         {
-            conn = new SqlConnection();
+            conn = new OracleConnection();
             conn.ConnectionString = connString;
             try
             {
@@ -126,9 +130,14 @@ namespace SGC.Infrastructure.Repositories
             var columns = new List<Column>();
             string catalog = "";
 
-            using (SqlCommand command = new SqlCommand($"select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='{tableName}'", conn))
+            using (OracleCommand command = new OracleCommand($"select * from ALL_TAB_COLUMNS where owner = 'SISCOM' and TABLE_NAME = '{tableName.ToUpper()}'", conn))
             {
-                SqlDataReader reader = command.ExecuteReader();
+                OracleDataReader reader = command.ExecuteReader();
+                if (!reader.HasRows)
+                {
+                    //Se não encontrar encontrar a tabela em questão, lança uma exceção
+                    throw new Exception("tabela não encontrada!") ;
+                } 
                 while (reader.Read())
                 {
                     catalog = reader.GetValue(0).ToString();
@@ -137,12 +146,12 @@ namespace SGC.Infrastructure.Repositories
                     {
                         var column = new Column()
                         {
-                            TableName = reader.GetValue(2).ToString(),
-                            Name = reader.GetValue(3).ToString(),
-                            IsPrimaryKey = false,
-                            IsNullable = reader.GetValue(6).ToString() == "YES" ? true : false,
-                            Type = reader.GetValue(7).ToString(),
-                            CharMaxLength = reader.GetValue(8) != DBNull.Value ? (int)reader.GetValue(8) : null,
+                            TableName = reader.GetValue(1).ToString(),
+                            Name = reader.GetValue(2).ToString(),
+                            IsPrimaryKey = reader.GetValue(32).ToString() == "YES" ? true : false,
+                            IsNullable = reader.GetValue(9).ToString() == "YES" ? true : false,
+                            Type = reader.GetValue(3).ToString(),
+                            CharMaxLength = reader.GetValue(26) != DBNull.Value ? Decimal.ToInt32((decimal)reader.GetValue(26)) : null,
 
                         };
 
@@ -162,3 +171,4 @@ namespace SGC.Infrastructure.Repositories
         }
     }
 }
+

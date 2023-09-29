@@ -12,6 +12,7 @@ namespace SGC.Infrastructure.IoC
         public static void RegisterServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<ITableRepository, SqlServerTableRepository>();
+            services.AddScoped<ITableRepository, OracleTableRepository>();
             services.AddScoped<IClassBuilderService, ClassBuilderService>();
             services.AddScoped<IFileService, FileService>();
         }

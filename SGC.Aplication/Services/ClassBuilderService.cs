@@ -12,7 +12,7 @@ namespace SGC.Aplication.Services
     public class ClassBuilderService : IClassBuilderService
     {
         private string ClassName { get; set; }
-        private Dictionary<string, string> FieldsDict = new Dictionary<string, string>();
+        //private Dictionary<string, string> FieldsDict = new Dictionary<string, string>();
         private Dictionary<string, string> SqlServerTypes = new Dictionary<string, string>()
         {
             {"int","int"}, 
@@ -43,13 +43,13 @@ namespace SGC.Aplication.Services
         public string GenerateClass(Table table, string namespaceName,int dbType)
         {
         //Metodo que retorna uma string de classe escrita com base em uma tabela e suas colunas, considerando seus tipos baseado nos tipos de dado c#
-            this.TableMap(table , dbType);
             string getSetTemplate = "{ get; set; }";
-            
 
+            Dictionary<string, string> FieldsDict = this.TableMap(table , dbType);
+    
             StringBuilder propsBuild = new StringBuilder();
 
-            foreach(KeyValuePair<string,string> field in this.FieldsDict)
+            foreach(KeyValuePair<string,string> field in FieldsDict)
             {
                 propsBuild.AppendLine($"\t{field.Value} {field.Key} {getSetTemplate}");
             }
@@ -68,11 +68,13 @@ namespace SGC.Aplication.Services
             return usingsBuild.ToString();
         }
         
-        public void TableMap(Table table, int dbType)
+        public Dictionary<string, string> TableMap(Table table, int dbType)
         {
         //Funcao que mapeia o dicionario FieldsDict(nome_coluna, tipo_dado) com o nome da coluna e seu respectivo tipo no C#, e indicando se é anulavel
             this.ClassName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(table.Name);
             string type = "";
+            
+            Dictionary<string, string> FieldsDict = new Dictionary<string, string>();
 
             if(dbType == 1)
             {
@@ -80,7 +82,7 @@ namespace SGC.Aplication.Services
                 {
                     type = this.SqlServerTypes[c.Type.ToLower()];
                     if (c.IsNullable == true) { type += "?"; } //Se a coluna for anulavel, adiciona a indicação de tipo anulavel do C#
-                    this.FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
+                    FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
                 }
             }
             else
@@ -89,9 +91,11 @@ namespace SGC.Aplication.Services
                 {
                     type = this.OracleTypes[c.Type.ToLower()];
                     if (c.IsNullable == true) { type += "?"; } //Se a coluna for anulavel, adiciona a indicação de tipo anulavel do C#
-                    this.FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
+                    FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
                 }
             }
+
+            return FieldsDict;
         }
         
         public string TranslateType(string sqlType)
