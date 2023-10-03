@@ -71,7 +71,7 @@ namespace SGC.Aplication.Services
         public Dictionary<string, string> TableMap(Table table, int dbType)
         {
         //Funcao que mapeia o dicionario FieldsDict(nome_coluna, tipo_dado) com o nome da coluna e seu respectivo tipo no C#, e indicando se é anulavel
-            this.ClassName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(table.Name);
+            this.ClassName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(table.Name.ToLower());
             string type = "";
             
             Dictionary<string, string> FieldsDict = new Dictionary<string, string>();

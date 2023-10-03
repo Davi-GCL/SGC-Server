@@ -11,7 +11,7 @@ namespace SGC.Aplication.Services
 {
     public class FileService : IFileService
     {
-        public string GenerateFile(string className , string classString)
+        public byte[] GenerateFile(string className , string classString)
         {
             var currentDir = Environment.CurrentDirectory;
             //Faz com o que o nome do arquivo seja pascal case(primeira letra maiuscula);
@@ -33,7 +33,7 @@ namespace SGC.Aplication.Services
                 throw ex;
             }
 
-            return fullPath.ToString();
+            return File.ReadAllBytes(fullPath);
         }
     }
 }

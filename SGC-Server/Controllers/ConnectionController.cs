@@ -61,6 +61,7 @@ namespace SGC_Server.Controllers
         {
             var classString = "";
             var table = new Table();
+            var urlList = new List<byte[]>();
             try
             {         
                 foreach (var selectedTableName in formTables.SelectedTablesNames)
@@ -78,7 +79,7 @@ namespace SGC_Server.Controllers
                     }
 
                     classString = _classBuilderService.GenerateClass(table, formTables.Namespace, formTables.Sgbd); //Retorna uma classe escrita em uma string
-                    _fileService.GenerateFile(selectedTableName, classString); //Utiliza uma classe escrita em uma string para criar um arquivo de classe na pasta ClassFiles
+                    urlList.Add( _fileService.GenerateFile(selectedTableName, classString) ); //Utiliza uma classe escrita em uma string para criar um arquivo de classe na pasta ClassFiles
 
                 }
             }
@@ -87,8 +88,30 @@ namespace SGC_Server.Controllers
                 return BadRequest(ex.Message);
             }
 
-            return Ok(classString);
+            return Ok(urlList);
         }
+
+
+
+        [HttpGet("ObterArquivo")]
+        public IActionResult ObterArquivo()
+        {
+            // Certifique-se de que o nome do arquivo seja seguro para evitar ataques de travessia de diretório.
+            // Você também pode adicionar outras verificações de segurança, conforme necessário.
+
+            string caminhoArquivo = @"C:\Users\davi.lemos\Desktop\Projetos_C#\SGC-Server\SGC-Server\ClassFiles\Teste.txt";
+
+            if (System.IO.File.Exists(caminhoArquivo))
+            {
+                var bytesArquivo = System.IO.File.ReadAllBytes(caminhoArquivo);
+                return File(bytesArquivo, "application/octet-stream", "Teste.txt");
+            }
+            else
+            {
+                return NotFound(); // Arquivo não encontrado
+            }
+        }
+
     }
 }
 //"Data Source=OPERACIONAL39\\SQLEXPRESS;Initial Catalog=sistema_banco;Persist Security Info=True;User ID=sa;Password=root"
