@@ -14,9 +14,11 @@ namespace SGC.Aplication.Services
         public byte[] GenerateFile(string className , string classString)
         {
             var currentDir = Environment.CurrentDirectory;
+
             //Faz com o que o nome do arquivo seja pascal case(primeira letra maiuscula);
             className = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(className.ToLower());
             string filePath = $"ClassFiles\\{className}.cs";
+            //var fullPath = Path.Combine(currentDir.Substring(0, currentDir.Length-22), filePath);
             var fullPath = Path.Combine(currentDir, filePath);
 
             try

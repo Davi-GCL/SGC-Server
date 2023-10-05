@@ -8,6 +8,7 @@ using SGC.Domain.Entities.DTOs;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Xml.Linq;
+using SGC.Infrastructure.Repositories;
 
 namespace SGC_Server.Controllers
 {
@@ -15,16 +16,16 @@ namespace SGC_Server.Controllers
     [Route("[controller]")]
     public class ConnectionController : ControllerBase
     {
-        private readonly ITableRepository _sqlServerTableRepo;
-        private readonly ITableRepository _oracleTableRepo;
+        private readonly ITableRepository _sqlServerTableRepo = new SqlServerTableRepository();
+        private readonly ITableRepository _oracleTableRepo = new OracleTableRepository();
         private readonly IClassBuilderService _classBuilderService;
         private readonly IFileService _fileService;
         private FormConnection _connStorage = new FormConnection();
 
-        public ConnectionController(ITableRepository SqlServerTableRepository, ITableRepository OracleTableRepo,IClassBuilderService ClassBuilderService, IFileService fileService)
+        public ConnectionController(IClassBuilderService ClassBuilderService, IFileService fileService)
         {
-            _sqlServerTableRepo = SqlServerTableRepository;
-            _oracleTableRepo = OracleTableRepo;
+            //_sqlServerTableRepo = SqlServerTableRepository;
+            //_oracleTableRepo = OracleTableRepo;
             _classBuilderService = ClassBuilderService;
             _fileService = fileService;
             //_connStorage = new FormConnection();
@@ -91,26 +92,6 @@ namespace SGC_Server.Controllers
             return Ok(urlList);
         }
 
-
-
-        [HttpGet("ObterArquivo")]
-        public IActionResult ObterArquivo()
-        {
-            // Certifique-se de que o nome do arquivo seja seguro para evitar ataques de travessia de diretório.
-            // Você também pode adicionar outras verificações de segurança, conforme necessário.
-
-            string caminhoArquivo = @"C:\Users\davi.lemos\Desktop\Projetos_C#\SGC-Server\SGC-Server\ClassFiles\Teste.txt";
-
-            if (System.IO.File.Exists(caminhoArquivo))
-            {
-                var bytesArquivo = System.IO.File.ReadAllBytes(caminhoArquivo);
-                return File(bytesArquivo, "application/octet-stream", "Teste.txt");
-            }
-            else
-            {
-                return NotFound(); // Arquivo não encontrado
-            }
-        }
 
     }
 }
