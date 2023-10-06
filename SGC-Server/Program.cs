@@ -16,6 +16,17 @@ namespace SGC_Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:4200") // Troque para o domínio do seu aplicativo Angular
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
+
             DependencyContainer.RegisterServices(builder.Services, builder.Configuration);
             var app = builder.Build();
 
@@ -26,10 +37,11 @@ namespace SGC_Server
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("AllowSpecificOrigin");
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

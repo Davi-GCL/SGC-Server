@@ -91,7 +91,11 @@ namespace SGC_Server.Controllers
 
             return Ok(urlList);
         }
-
+        [HttpGet("/get")]
+        public IActionResult Get()
+        {
+            return Ok("Okay!");
+        }
 
     }
 }
