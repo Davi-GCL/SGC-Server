@@ -92,7 +92,11 @@ namespace SGC_Server.Controllers
             return Ok(urlList);
         }
 
-
+        [HttpGet("/get")]
+        public IActionResult Teste()
+        {
+            return Ok("testado");
+        }
     }
 }
 //"Data Source=OPERACIONAL39\\SQLEXPRESS;Initial Catalog=sistema_banco;Persist Security Info=True;User ID=sa;Password=root"
