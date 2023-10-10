@@ -3,7 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SGC-Server", "SGC-Server\SGC-Server.csproj", "{7E9491FA-F63C-413E-9450-577F8D5648E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SGC-Server", "SGC-Server\SGC-Server.csproj", "{7E9491FA-F63C-413E-9450-577F8D5648E9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. Infrastructure", "4. Infrastructure", "{033481BC-86FD-4502-921B-9892049B0B34}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SGC.Infrastructure.Data", "SGC.Infrastructure\SGC.Infrastructure.Data.csproj", "{8BFCA941-3853-439B-9D46-FBEB6880D8BA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Apresentation", "1. Apresentation", "{4AFE2FDF-1894-4636-A305-317F06D1BFD1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Aplication", "2. Aplication", "{C33D5062-1A97-4C8E-B02C-1C5EA7C0B98E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Domain", "3. Domain", "{3A5B706F-6A0E-41A0-8AF3-8C52EA27EC72}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SGC.Aplication", "SGC.Aplication\SGC.Aplication.csproj", "{7DC3E74D-77AC-4C96-BE4F-19F24B02BBFD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SGC.Domain", "SGC.Domain\SGC.Domain.csproj", "{8A9A7942-C5EE-48D6-90C5-0CFC985E4BFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SGC.Infrastructure.IoC", "SGC.Infrastructure.IoC\SGC.Infrastructure.IoC.csproj", "{B5A0D916-F49A-4957-9D9C-BDB46CB62375}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +31,32 @@ Global
 		{7E9491FA-F63C-413E-9450-577F8D5648E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E9491FA-F63C-413E-9450-577F8D5648E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E9491FA-F63C-413E-9450-577F8D5648E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BFCA941-3853-439B-9D46-FBEB6880D8BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BFCA941-3853-439B-9D46-FBEB6880D8BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BFCA941-3853-439B-9D46-FBEB6880D8BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BFCA941-3853-439B-9D46-FBEB6880D8BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DC3E74D-77AC-4C96-BE4F-19F24B02BBFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DC3E74D-77AC-4C96-BE4F-19F24B02BBFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DC3E74D-77AC-4C96-BE4F-19F24B02BBFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DC3E74D-77AC-4C96-BE4F-19F24B02BBFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A9A7942-C5EE-48D6-90C5-0CFC985E4BFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A9A7942-C5EE-48D6-90C5-0CFC985E4BFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A9A7942-C5EE-48D6-90C5-0CFC985E4BFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A9A7942-C5EE-48D6-90C5-0CFC985E4BFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5A0D916-F49A-4957-9D9C-BDB46CB62375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5A0D916-F49A-4957-9D9C-BDB46CB62375}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5A0D916-F49A-4957-9D9C-BDB46CB62375}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5A0D916-F49A-4957-9D9C-BDB46CB62375}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7E9491FA-F63C-413E-9450-577F8D5648E9} = {4AFE2FDF-1894-4636-A305-317F06D1BFD1}
+		{8BFCA941-3853-439B-9D46-FBEB6880D8BA} = {033481BC-86FD-4502-921B-9892049B0B34}
+		{7DC3E74D-77AC-4C96-BE4F-19F24B02BBFD} = {C33D5062-1A97-4C8E-B02C-1C5EA7C0B98E}
+		{8A9A7942-C5EE-48D6-90C5-0CFC985E4BFA} = {3A5B706F-6A0E-41A0-8AF3-8C52EA27EC72}
+		{B5A0D916-F49A-4957-9D9C-BDB46CB62375} = {033481BC-86FD-4502-921B-9892049B0B34}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {365394C0-AC69-4E8B-820D-9437AB305E7A}

@@ -8,12 +8,38 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <Compile Remove="Infra\**" />
+    <Compile Remove="Model\**" />
+    <Content Remove="Infra\**" />
+    <Content Remove="Model\**" />
+    <EmbeddedResource Remove="Infra\**" />
+    <EmbeddedResource Remove="Model\**" />
+    <None Remove="Infra\**" />
+    <None Remove="Model\**" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Compile Remove="ClassFiles\**" />
+		<Content Remove="ClassFiles\**" />
+	</ItemGroup>
+
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.110" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\SGC.aplication\SGC.aplication.csproj" />
+		<ProjectReference Include="..\SGC.domain\SGC.domain.csproj" />
+		<ProjectReference Include="..\SGC.Infrastructure.IoC\SGC.Infrastructure.IoC.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Mapping\" />
+	</ItemGroup>
 
 </Project>
