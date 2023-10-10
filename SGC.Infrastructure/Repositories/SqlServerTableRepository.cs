@@ -36,7 +36,7 @@ namespace SGC.Infrastructure.Repositories
             string tableName = "";
             string catalog = "";
 
-            SqlCommand command = new SqlCommand("SELECT * from INFORMATION_SCHEMA.COLUMNS", conn);
+            SqlCommand command = new SqlCommand("select TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH from INFORMATION_SCHEMA.COLUMNS order by TABLE_NAME", conn);
             SqlDataReader reader = command.ExecuteReader();
             try
             {
@@ -47,12 +47,12 @@ namespace SGC.Infrastructure.Repositories
                     
                     var column = new Column()
                     {
-                        TableName = reader.GetValue(2).ToString(),
-                        Name = reader.GetValue(3).ToString(),
+                        TableName = reader.GetValue(1).ToString(),
+                        Name = reader.GetValue(2).ToString(),
                         IsPrimaryKey = false,
-                        IsNullable = reader.GetValue(6).ToString() == "YES" ? true : false,
-                        Type = reader.GetValue(7).ToString(),
-                        CharMaxLength = reader.GetValue(8) != DBNull.Value ? (int)reader.GetValue(8) : null,
+                        IsNullable = reader.GetValue(3).ToString() == "YES" ? true : false,
+                        Type = reader.GetValue(4).ToString(),
+                        CharMaxLength = reader.GetValue(5) != DBNull.Value ? (int)reader.GetValue(5) : null,
                     };
                     columns.Add(column);     
                 }
@@ -98,7 +98,7 @@ namespace SGC.Infrastructure.Repositories
             var columns = new List<Column>();
             string catalog = "";
 
-            using (SqlCommand command = new SqlCommand($"select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='{tableName}'", conn))
+            using (SqlCommand command = new SqlCommand($"select TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='{tableName}'", conn))
             {
                 SqlDataReader reader = command.ExecuteReader();
                 try
@@ -110,17 +110,14 @@ namespace SGC.Infrastructure.Repositories
 
                         var column = new Column()
                         {
-                            TableName = reader.GetValue(2).ToString(),
-                            Name = reader.GetValue(3).ToString(),
+                            TableName = reader.GetValue(1).ToString(),
+                            Name = reader.GetValue(2).ToString(),
                             IsPrimaryKey = false,
-                            IsNullable = reader.GetValue(6).ToString() == "YES" ? true : false,
-                            Type = reader.GetValue(7).ToString(),
-                            CharMaxLength = reader.GetValue(8) != DBNull.Value ? (int)reader.GetValue(8) : null,
-
+                            IsNullable = reader.GetValue(3).ToString() == "YES" ? true : false,
+                            Type = reader.GetValue(4).ToString(),
+                            CharMaxLength = reader.GetValue(5) != DBNull.Value ? (int)reader.GetValue(5) : null,
                         };
-
                         columns.Add(column);
-
                     }
                 }
                 catch (Exception ex)

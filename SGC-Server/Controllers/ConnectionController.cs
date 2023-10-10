@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Xml.Linq;
 using SGC.Infrastructure.Repositories;
+using System.Globalization;
 
 namespace SGC_Server.Controllers
 {
@@ -34,7 +35,7 @@ namespace SGC_Server.Controllers
         [HttpPost("Connect")]
         public IActionResult Connect([FromBody] FormConnection formConnection)
         {
-            _connStorage.ConnString = formConnection.ConnString;
+            //_connStorage.ConnString = formConnection.ConnString;
             Console.WriteLine(formConnection.ConnString);
             try
             {
@@ -63,7 +64,8 @@ namespace SGC_Server.Controllers
         {
             var classString = "";
             var table = new Table();
-            var urlList = new List<byte[]>();
+            //var urlList = new List<byte[]>();
+            var urlDict = new Dictionary<string, byte[]>();
             try
             {         
                 foreach (var selectedTableName in formTables.SelectedTablesNames)
@@ -79,18 +81,18 @@ namespace SGC_Server.Controllers
                             break;
                         default: return BadRequest("SGBD invalido!");
                     }
-
                     classString = _classBuilderService.GenerateClass(table, formTables.Namespace, formTables.Sgbd); //Retorna uma classe escrita em uma string
-                    urlList.Add( _fileService.GenerateFile(selectedTableName, classString) ); //Utiliza uma classe escrita em uma string para criar um arquivo de classe na pasta ClassFiles
-
+                    urlDict.Add(
+                        CultureInfo.CurrentCulture.TextInfo.ToTitleCase(selectedTableName.ToLower()),
+                        _fileService.GenerateFile(selectedTableName, classString) 
+                    ); //Utiliza uma classe escrita em uma string para criar um arquivo de classe na pasta ClassFiles
                 }
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
-            return Ok(urlList);
+            return Ok(urlDict);
         }
         
         [HttpGet("/get")]

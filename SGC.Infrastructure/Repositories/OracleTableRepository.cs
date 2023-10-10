@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -39,8 +40,10 @@ namespace SGC.Infrastructure.Repositories
             string tableName = "";
             string catalog = "";
 
-            OracleCommand command = new OracleCommand("select * from ALL_TAB_COLUMNS where owner = 'SISCOM'", conn);
+            OracleCommand command = new OracleCommand("select OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, CHAR_LENGTH, IDENTITY_COLUMN from ALL_TAB_COLUMNS where OWNER = 'SISCOM' order by TABLE_NAME", conn);
             OracleDataReader reader = command.ExecuteReader();
+
+            if (!reader.HasRows) { throw new DataException("Query has not results rows"); } //Se não encontrar encontrar tabelas, lança uma exceção
             try
             {
                 while (reader.Read())
@@ -52,10 +55,10 @@ namespace SGC.Infrastructure.Repositories
                     {
                         TableName = reader.GetValue(1).ToString(),
                         Name = reader.GetValue(2).ToString(),
-                        IsPrimaryKey = reader.GetValue(32).ToString() == "YES" ? true : false,
-                        IsNullable = reader.GetValue(9).ToString() == "YES" ? true : false,
                         Type = reader.GetValue(3).ToString(),
-                        CharMaxLength = reader.GetValue(26) != DBNull.Value ? Decimal.ToInt32((decimal)reader.GetValue(26)) : null,
+                        IsNullable = reader.GetValue(4).ToString() == "YES" ? true : false,
+                        CharMaxLength = reader.GetValue(5) != DBNull.Value ? Decimal.ToInt32((decimal)reader.GetValue(5)) : null,
+                        IsPrimaryKey = reader.GetValue(6).ToString() == "YES" ? true : false,
                     };
                     columns.Add(column);
                 }
@@ -89,7 +92,6 @@ namespace SGC.Infrastructure.Repositories
             conn.ConnectionString = connString;
             try
             {
-
                 //Verifica se a conexao está fechada ou já está aberta antes de conectar
                 if (conn.State == System.Data.ConnectionState.Closed)
                 {
@@ -106,7 +108,7 @@ namespace SGC.Infrastructure.Repositories
             var columns = new List<Column>();
             string catalog = "";
 
-            using (OracleCommand command = new OracleCommand($"select * from ALL_TAB_COLUMNS where owner = 'SISCOM' and TABLE_NAME = '{tableName.ToUpper()}'", conn))
+            using (OracleCommand command = new OracleCommand($"select OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, CHAR_LENGTH, IDENTITY_COLUMN from ALL_TAB_COLUMNS where owner = 'SISCOM' and TABLE_NAME = '{tableName.ToUpper()}'", conn))
             {
                 OracleDataReader reader = command.ExecuteReader();
                 if (!reader.HasRows)
@@ -124,11 +126,10 @@ namespace SGC.Infrastructure.Repositories
                         {
                             TableName = reader.GetValue(1).ToString(),
                             Name = reader.GetValue(2).ToString(),
-                            IsPrimaryKey = reader.GetValue(32).ToString() == "YES" ? true : false,
-                            IsNullable = reader.GetValue(9).ToString() == "YES" ? true : false,
                             Type = reader.GetValue(3).ToString(),
-                            CharMaxLength = reader.GetValue(26) != DBNull.Value ? Decimal.ToInt32((decimal)reader.GetValue(26)) : null,
-
+                            IsNullable = reader.GetValue(4).ToString() == "YES" ? true : false,
+                            CharMaxLength = reader.GetValue(5) != DBNull.Value ? Decimal.ToInt32((decimal)reader.GetValue(5)) : null,
+                            IsPrimaryKey = reader.GetValue(6).ToString() == "YES" ? true : false,
                         };
 
                         columns.Add(column);
