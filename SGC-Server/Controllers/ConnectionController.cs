@@ -31,10 +31,11 @@ namespace SGC_Server.Controllers
             //_connStorage = new FormConnection();
         }
 
-        [HttpPost("/connect")]
+        [HttpPost("Connect")]
         public IActionResult Connect([FromBody] FormConnection formConnection)
         {
             _connStorage.ConnString = formConnection.ConnString;
+            Console.WriteLine(formConnection.ConnString);
             try
             {
                 //Switch para utilizar o repository correspondente ao sgbd selecionado
@@ -57,7 +58,7 @@ namespace SGC_Server.Controllers
             
         }
 
-        [HttpPost("/class")]
+        [HttpPost("Class")]
         public IActionResult BuildClass([FromBody] FormTables formTables)
         {
             var classString = "";
@@ -91,12 +92,13 @@ namespace SGC_Server.Controllers
 
             return Ok(urlList);
         }
-
+        
         [HttpGet("/get")]
-        public IActionResult Teste()
+        public IActionResult Get()
         {
-            return Ok("testado");
+            return Ok("Okay!");
         }
+
     }
 }
 //"Data Source=OPERACIONAL39\\SQLEXPRESS;Initial Catalog=sistema_banco;Persist Security Info=True;User ID=sa;Password=root"

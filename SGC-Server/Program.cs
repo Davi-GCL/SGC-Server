@@ -27,8 +27,6 @@ namespace SGC_Server
                     });
             });
 
-            // Resto das configurações de serviços
-
             DependencyContainer.RegisterServices(builder.Services, builder.Configuration);
             var app = builder.Build();
 
@@ -39,6 +37,8 @@ namespace SGC_Server
                 app.UseSwaggerUI();
 
             }
+            app.UseCors("AllowSpecificOrigin");
+
             app.UseCors("AllowSpecificOrigin");
 
             app.UseHttpsRedirection();

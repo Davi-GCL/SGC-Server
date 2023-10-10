@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,79 +32,55 @@ namespace SGC.Infrastructure.Repositories
                 throw new Exception(ex.Message);
             }
 
-
-
             //SELECT table_name  from all_tables where owner = 'SISCOM';
             //SELECT* from ALL_TAB_COLUMNS where owner = 'SISCOM';
             //cmd.CommandText = "SELECT table_name  from all_tables where owner = 'SISCOM'";
-            dynamic result = "";
-            var tables = new List<Table>();
             var columns = new List<Column>();
             string tableName = "";
             string catalog = "";
 
-            using (OracleCommand command = new OracleCommand("select * from ALL_TAB_COLUMNS where owner = 'SISCOM'", conn))
+            OracleCommand command = new OracleCommand("select * from ALL_TAB_COLUMNS where owner = 'SISCOM'", conn);
+            OracleDataReader reader = command.ExecuteReader();
+            try
             {
-                
-                OracleDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    
                     catalog = reader.GetValue(0).ToString();
                     //tableName = reader.GetValue(2).ToString();
-                    try
-                    {
-                        var column = new Column()
-                        {
-                            TableName = reader.GetValue(1).ToString(),
-                            Name = reader.GetValue(2).ToString(),
-                            IsPrimaryKey = reader.GetValue(32).ToString() == "YES" ? true : false,
-                            IsNullable = reader.GetValue(9).ToString() == "YES" ? true : false,
-                            Type = reader.GetValue(3).ToString(),
-                            CharMaxLength = reader.GetValue(26) != DBNull.Value ? Decimal.ToInt32( (decimal)reader.GetValue(26) ) : null,
 
-                        };
-
-                        columns.Add(column);
-                    }
-                    catch (Exception ex)
+                    var column = new Column()
                     {
-                        reader.Close();
-                        conn.Close();
-                        throw new Exception(ex.Message);
-                    }
+                        TableName = reader.GetValue(1).ToString(),
+                        Name = reader.GetValue(2).ToString(),
+                        IsPrimaryKey = reader.GetValue(32).ToString() == "YES" ? true : false,
+                        IsNullable = reader.GetValue(9).ToString() == "YES" ? true : false,
+                        Type = reader.GetValue(3).ToString(),
+                        CharMaxLength = reader.GetValue(26) != DBNull.Value ? Decimal.ToInt32((decimal)reader.GetValue(26)) : null,
+                    };
+                    columns.Add(column);
                 }
+                //Mapeia a lista de colunas para uma lista de tabelas, agrupando as colunas com suas respectivas tabelas pelo nome
+                List<Table> tables = TableMapper.ColumnsToTableList(columns, catalog);
+                return tables;
+            }
+            catch (ArgumentException)
+            {
+                throw new Exception("Columns not found");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                conn.Close();
                 reader.Close();
             }
 
-            var columnGroup = new List<Column>();
-            var columnGroup2 = new List<Column>();
-
-            for (int i = 0; i < columns.Count; i++)
-            {
-
-                if (i > 0)
-                {
-                    if (columns[i-1].TableName != columns[i].TableName)
-                    {
-                        //Se o loop está em um item de uma tabela diferente da que estava antes, as colunas da tabela já passada são armazenadas, atribuidas à essa tabela;
-                        tables.Add(new Table() { Catalog=catalog, Name=columns[i-1].TableName, Columns= columnGroup });
-                        columnGroup = new List<Column>();
-                        continue;
-                    }
-                    else if (i == columns.Count-1)
-                    {
-                        //Se a iteração chegou no ultimo item
-                        columnGroup.Add(columns[i]);
-                        tables.Add(new Table() { Catalog=catalog, Name=columns[i].TableName, Columns= columnGroup });
-                    }
-                }
-                columnGroup.Add(columns[i]);
-            }
-
-            conn.Close();
+            //conn.Close ();
             //tables.Add(new Table() { Catalog=catalog, Name=tableName, Columns= columns });
-            return tables;
+            //List<Table> tables = TableMapper.ColumnsToTableList(columns, catalog);
+            //return tables;
         }
 
         public Table GetMetaDataByTableName(string connString, string tableName)
@@ -125,8 +102,7 @@ namespace SGC.Infrastructure.Repositories
             }
 
             //cmd.CommandText = "SELECT * from INFORMATION_SCHEMA.TABLES";
-            dynamic result = "";
-            var tables = new List<Table>();
+            
             var columns = new List<Column>();
             string catalog = "";
 
