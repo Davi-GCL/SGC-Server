@@ -29,13 +29,18 @@ namespace SGC.Aplication.Services
                     file.Close();
                 }
                     
+                return File.ReadAllBytes(fullPath);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+            finally
+            {
+                
+                File.Delete(fullPath);
+            }
 
-            return File.ReadAllBytes(fullPath);
         }
     }
 }
