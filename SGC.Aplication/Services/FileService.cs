@@ -11,7 +11,7 @@ namespace SGC.Aplication.Services
 {
     public class FileService : IFileService
     {
-        public byte[] GenerateFile(string className , string classString)
+        public byte[] GenerateFile(string className, string classString)
         {
             var currentDir = Environment.CurrentDirectory;
 
@@ -20,27 +20,35 @@ namespace SGC.Aplication.Services
             string filePath = $"ClassFiles\\{className}.cs";
             //var fullPath = Path.Combine(currentDir.Substring(0, currentDir.Length-22), filePath);
             var fullPath = Path.Combine(currentDir, filePath);
-
-            try
-            {
-                using (var file = File.CreateText(fullPath))
+            int trials = 0;
+            while (trials < 3) 
+            { 
+                try
                 {
-                    file.Write(classString);
-                    file.Close();
-                }
-                    
-                return File.ReadAllBytes(fullPath);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                
-                File.Delete(fullPath);
-            }
+                    using (var file = File.CreateText(fullPath))
+                    {
+                        file.Write(classString);
+                        file.Close();
+                    }
+                    Thread.Sleep(1000);
 
+                    return File.ReadAllBytes(fullPath);
+                }
+                catch (IOException)
+                {
+                    Thread.Sleep(1000);
+                    trials++;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    File.Delete(fullPath);
+                }
+            }
+            throw new Exception("Erro na leitura de arquivos");
         }
     }
 }

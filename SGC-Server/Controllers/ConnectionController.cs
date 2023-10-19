@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using System.Xml.Linq;
 using SGC.Infrastructure.Repositories;
 using System.Globalization;
+using System.Text;
 
 namespace SGC_Server.Controllers
 {
@@ -83,9 +84,9 @@ namespace SGC_Server.Controllers
                     }
                     classString = _classBuilderService.GenerateClass(table, formTables.Namespace, formTables.Sgbd); //Retorna uma classe escrita em uma string
                     urlDict.Add(
-                        CultureInfo.CurrentCulture.TextInfo.ToTitleCase(selectedTableName.ToLower()),
-                        _fileService.GenerateFile(selectedTableName, classString) 
-                    ); //Utiliza uma classe escrita em uma string para criar um arquivo de classe na pasta ClassFiles
+                        selectedTableName.ToLower(),
+                        Encoding.ASCII.GetBytes(classString)
+                    ); //Adiciona ao dictionary, o nome da classe e a string com o corpo da classe, transformado em array de bytes (base 64)
                 }
             }
             catch (Exception ex)
