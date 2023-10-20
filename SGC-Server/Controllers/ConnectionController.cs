@@ -63,8 +63,8 @@ namespace SGC_Server.Controllers
         [HttpPost("Class")]
         public IActionResult BuildClass([FromBody] FormTables formTables)
         {
-            var classString = "";
-            var table = new Table();
+            string classString = "";
+            Table table = new Table();
             //var urlList = new List<byte[]>();
             var urlDict = new Dictionary<string, byte[]>();
             try
