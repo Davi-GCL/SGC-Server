@@ -25,7 +25,6 @@ public class TableMapper
                     //Se o loop está em um item de uma tabela diferente da que estava antes, as colunas da tabela já passada são armazenadas, atribuidas à essa tabela;
                     tables.Add(new Table() { Catalog = catalog, Name = columns[i - 1].TableName, Columns = columnGroup });
                     columnGroup = new List<Column>();
-                    continue;
                 }
                 else if (i == columns.Count - 1)
                 {

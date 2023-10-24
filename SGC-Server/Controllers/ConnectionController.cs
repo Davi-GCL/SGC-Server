@@ -6,6 +6,10 @@ using SGC.Domain.Entities.DTOs;
 using System.Collections.Generic;
 using SGC.Infrastructure.Repositories;
 using System.Text;
+using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using SGC.Domain.Validators;
+using System.Linq;
 
 namespace SGC_Server.Controllers
 {
@@ -29,12 +33,24 @@ namespace SGC_Server.Controllers
         }
 
         [HttpPost("Connect")]
-        public IActionResult Connect([FromBody] FormConnection formConnection)
+        public async Task<IActionResult> Connect([FromBody] FormConnection formConnection)
         {
             //_connStorage.ConnString = formConnection.ConnString;
             Console.WriteLine(formConnection.ConnString);
             try
             {
+                var validation = await new FormConnectionValidator().ValidateAsync(formConnection);
+                if (!validation.IsValid)
+                {
+                    var errors = validation.Errors?.Select(x=> new ValidationResult()
+                    {
+                        Codigo=x.ErrorCode,
+                        NomePropriedade=x.PropertyName,
+                        Mensagem=x.ErrorMessage
+                    });
+                    return BadRequest(errors);
+                }
+
                 //Switch para utilizar o repository correspondente ao sgbd selecionado
                 switch (formConnection.Sgbd)
                 {

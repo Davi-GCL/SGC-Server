@@ -1,8 +1,8 @@
 ﻿namespace SGC.Domain.Entities;
 
-public class Column
+public class Column 
 {
-
+    
     public string TableName { get; set; }
 
     public string Name { get; set; }
@@ -14,4 +14,5 @@ public class Column
     public string Type { get; set; }
 
     public int? CharMaxLength { get; set; }
+
 }

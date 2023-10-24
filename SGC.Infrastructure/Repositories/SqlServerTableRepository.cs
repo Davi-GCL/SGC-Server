@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SGC.Domain.Entities;
 using SGC.Domain.Interfaces;
 
@@ -44,6 +41,7 @@ namespace SGC.Infrastructure.Repositories
                 {
                     catalog = reader.GetValue(0).ToString();
                     //tableName = reader.GetValue(2).ToString();
+                    var teste = new Column();
                     
                     var column = new Column()
                     {
