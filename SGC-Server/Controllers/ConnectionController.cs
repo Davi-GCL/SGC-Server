@@ -1,15 +1,10 @@
-﻿using Microsoft.AspNetCore.Http.Connections;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Any;
+﻿using Microsoft.AspNetCore.Mvc;
 using SGC.Aplication.Services;
 using SGC.Domain.Interfaces;
 using SGC.Domain.Entities;
 using SGC.Domain.Entities.DTOs;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Xml.Linq;
 using SGC.Infrastructure.Repositories;
-using System.Globalization;
 using System.Text;
 
 namespace SGC_Server.Controllers
@@ -67,6 +62,7 @@ namespace SGC_Server.Controllers
             Table table = new Table();
             //var urlList = new List<byte[]>();
             var urlDict = new Dictionary<string, byte[]>();
+            var classList = new List<GeneratedClass>();
             try
             {         
                 foreach (var selectedTableName in formTables.SelectedTablesNames)
@@ -83,17 +79,15 @@ namespace SGC_Server.Controllers
                         default: return BadRequest("SGBD invalido!");
                     }
                     classString = _classBuilderService.GenerateClass(table, formTables.Namespace, formTables.Sgbd); //Retorna uma classe escrita em uma string
-                    urlDict.Add(
-                        selectedTableName.ToLower(),
-                        Encoding.ASCII.GetBytes(classString)
-                    ); //Adiciona ao dictionary, o nome da classe e a string com o corpo da classe, transformado em array de bytes (base 64)
+                    //Adiciona a lista, o nome da classe, a classe transformado em array de bytes (base 64) para download e a string com o corpo da classe
+                    classList.Add(new GeneratedClass() { Name=selectedTableName.ToLower(),Download=Encoding.ASCII.GetBytes(classString), Description=classString });
                 }
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-            return Ok(urlDict);
+            return Ok(classList);
         }
         
         [HttpGet("/get")]
