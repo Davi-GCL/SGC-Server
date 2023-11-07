@@ -5,11 +5,9 @@ using SGC.Domain.Entities;
 using SGC.Domain.Entities.DTOs;
 using System.Collections.Generic;
 using SGC.Infrastructure.Repositories;
-using System.Text;
-using Newtonsoft.Json;
-using System.Text.Json.Serialization;
 using SGC.Domain.Validators;
-using System.Linq;
+using Microsoft.AspNetCore.Http;
+using System.Data.SqlClient;
 
 namespace SGC_Server.Controllers
 {
@@ -17,18 +15,16 @@ namespace SGC_Server.Controllers
     [Route("[controller]")]
     public class ConnectionController : ControllerBase
     {
-        private readonly ITableRepository _sqlServerTableRepo = new SqlServerTableRepository();
-        private readonly ITableRepository _oracleTableRepo = new OracleTableRepository();
+        private readonly IDatabaseService _databaseService;
         private readonly IClassBuilderService _classBuilderService;
-        private readonly IFileService _fileService;
         private FormConnection _connStorage = new FormConnection();
 
-        public ConnectionController(IClassBuilderService ClassBuilderService, IFileService fileService)
+        public ConnectionController(IClassBuilderService ClassBuilderService, IDatabaseService databaseService)
         {
             //_sqlServerTableRepo = SqlServerTableRepository;
             //_oracleTableRepo = OracleTableRepo;
             _classBuilderService = ClassBuilderService;
-            _fileService = fileService;
+            _databaseService=databaseService;
             //_connStorage = new FormConnection();
         }
 
@@ -50,29 +46,30 @@ namespace SGC_Server.Controllers
                     });
                     return BadRequest(errors);
                 }
-
-                //Switch para utilizar o repository correspondente ao sgbd selecionado
+                //Altera a implementação da classe para o objeto repo 
+                IRepository repo;
                 switch (formConnection.Sgbd)
                 {
                     case 1:
-                        return Ok(_sqlServerTableRepo.GetAllMetaData(formConnection.ConnString));
-                        //break;
+                        repo = new SqlServerTableRepository();
+                        break;
                     case 2:
-                        return Ok(_oracleTableRepo.GetAllMetaData(formConnection.ConnString));
-                        //break;
-                    default: return BadRequest("SGBD invalido!");
-                }
+                        repo = new OracleTableRepository();
+                        break;
+                    default: return BadRequest("SGBD invalido");
+                } 
+
+                return Ok( await _databaseService.GetAllTablesInformationAsync(formConnection, repo));
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
             
         }
 
         [HttpPost("Class")]
-        public IActionResult BuildClass([FromBody] FormTables formTables)
+        public async Task<IActionResult> BuildClass([FromBody] FormTables formTables)
         {
             string classString = "";
             Table table = new Table();
@@ -80,24 +77,32 @@ namespace SGC_Server.Controllers
             var urlDict = new Dictionary<string, byte[]>();
             var classList = new List<GeneratedClass>();
             try
-            {         
-                foreach (var selectedTableName in formTables.SelectedTablesNames)
+            {
+                var validation = await new FormTablesValidator().ValidateAsync(formTables);
+                if(!validation.IsValid)
                 {
-                    //Switch para utilizar o repository correspondente ao sgbd selecionado
-                    switch (formTables.Sgbd)
+                    validation.Errors?.Select(x => new ValidationResult()
                     {
-                        case 1:
-                            table = _sqlServerTableRepo.GetMetaDataByTableName(formTables.ConnString, selectedTableName);
-                            break;
-                        case 2: 
-                            table = _oracleTableRepo.GetMetaDataByTableName(formTables.ConnString, selectedTableName);
-                            break;
-                        default: return BadRequest("SGBD invalido!");
-                    }
-                    classString = _classBuilderService.GenerateClass(table, formTables.Namespace, formTables.Sgbd); //Retorna uma classe escrita em uma string
-                    //Adiciona a lista, o nome da classe, a classe transformado em array de bytes (base 64) para download e a string com o corpo da classe
-                    classList.Add(new GeneratedClass() { Name=selectedTableName.ToLower(),Download=Encoding.ASCII.GetBytes(classString), Description=classString });
+                        Codigo= x.ErrorCode,
+                        NomePropriedade= x.PropertyName,
+                        Mensagem = x.ErrorMessage
+                    });
+                    return BadRequest(validation);
                 }
+                //Altera a implementação da classe para o objeto repo 
+
+                IRepository repo;
+                switch (formTables.Sgbd)
+                {
+                    case 1:
+                        repo = new SqlServerTableRepository();
+                        break;
+                    case 2:
+                        repo = new OracleTableRepository();
+                        break;
+                    default: return BadRequest("SGBD invalido");
+                }
+                classList = await _databaseService.GetTablesInformationAsync(formTables,repo,_classBuilderService);
             }
             catch (Exception ex)
             {
@@ -109,6 +114,8 @@ namespace SGC_Server.Controllers
         [HttpGet("/get")]
         public IActionResult Get()
         {
+            RepositoryClass<SqlConnection> aux = new RepositoryClass<SqlConnection>(new SqlConnection());
+
             return Ok("Okay!");
         }
 

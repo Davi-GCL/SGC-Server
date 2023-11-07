@@ -12,20 +12,19 @@ using SGC.Domain.Interfaces;
 
 namespace SGC.Infrastructure.Repositories
 {
-    public class OracleTableRepository : ITableRepository
+    public class OracleTableRepository : Repository<OracleConnection>, IOracleRepository
     {
-        private OracleConnection? conn;
 
-        public IList<Table> GetAllMetaData(string connString)
+        public override async Task<IList<Table>> GetAllMetaData(string connString)
         {
-            conn = new OracleConnection(connString);
-            //conn.ConnectionString = connString;
+            Conn= new OracleConnection(connString);
+            //Conn.ConnectionString = connString;
             try
             {
                 //Verifica se a conexao está fechada ou já está aberta antes de conectar
-                if (conn.State == System.Data.ConnectionState.Closed)
+                if (Conn.State == System.Data.ConnectionState.Closed)
                 {
-                    conn.Open();
+                    Conn.OpenAsync();
                 }
             }
             catch (Exception ex)
@@ -40,13 +39,13 @@ namespace SGC.Infrastructure.Repositories
             string tableName = "";
             string catalog = "";
 
-            OracleCommand command = new OracleCommand("select OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, CHAR_LENGTH, IDENTITY_COLUMN from ALL_TAB_COLUMNS where OWNER = 'SISCOM' order by TABLE_NAME", conn);
-            OracleDataReader reader = command.ExecuteReader();
+            OracleCommand command = new OracleCommand("select OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, CHAR_LENGTH, IDENTITY_COLUMN from ALL_TAB_COLUMNS where OWNER = 'SISCOM' order by TABLE_NAME", Conn);
+            OracleDataReader reader = (OracleDataReader)await command.ExecuteReaderAsync();
 
             if (!reader.HasRows) { throw new DataException("Query has not results rows"); } //Se não encontrar encontrar tabelas, lança uma exceção
             try
             {
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     catalog = reader.GetValue(0).ToString();
                     //tableName = reader.GetValue(2).ToString();
@@ -76,26 +75,26 @@ namespace SGC.Infrastructure.Repositories
             }
             finally
             {
-                conn.Close();
                 reader.Close();
+                Conn.Close();
             }
 
-            //conn.Close ();
+            //Conn.Close ();
             //tables.Add(new Table() { Catalog=catalog, Name=tableName, Columns= columns });
             //List<Table> tables = TableMapper.ColumnsToTableList(columns, catalog);
             //return tables;
         }
 
-        public Table GetMetaDataByTableName(string connString, string tableName)
+        public override async Task<Table> GetMetaDataByTableName(string connString, string tableName)
         {
-            conn = new OracleConnection();
-            conn.ConnectionString = connString;
+            Conn= new OracleConnection();
+            Conn.ConnectionString = connString;
             try
             {
                 //Verifica se a conexao está fechada ou já está aberta antes de conectar
-                if (conn.State == System.Data.ConnectionState.Closed)
+                if (Conn.State == System.Data.ConnectionState.Closed)
                 {
-                    conn.Open();
+                    Conn.OpenAsync();
                 }
             }
             catch (Exception ex)
@@ -108,15 +107,15 @@ namespace SGC.Infrastructure.Repositories
             var columns = new List<Column>();
             string catalog = "";
 
-            using (OracleCommand command = new OracleCommand($"select OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, CHAR_LENGTH, IDENTITY_COLUMN from ALL_TAB_COLUMNS where owner = 'SISCOM' and TABLE_NAME = '{tableName.ToUpper()}'", conn))
+            using (OracleCommand command = new OracleCommand($"select OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, NULLABLE, CHAR_LENGTH, IDENTITY_COLUMN from ALL_TAB_COLUMNS where owner = 'SISCOM' and TABLE_NAME = '{tableName.ToUpper()}'", Conn))
             {
-                OracleDataReader reader = command.ExecuteReader();
+                OracleDataReader reader = (OracleDataReader)await command.ExecuteReaderAsync();
                 if (!reader.HasRows)
                 {
                     //Se não encontrar encontrar a tabela em questão, lança uma exceção
                     throw new Exception("tabela não encontrada!") ;
                 } 
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     catalog = reader.GetValue(0).ToString();
                     //tableName = reader.GetValue(2).ToString();
@@ -137,7 +136,7 @@ namespace SGC.Infrastructure.Repositories
                     catch (Exception ex)
                     {
                         reader.Close();
-                        conn.Close();
+                        Conn.Close();
                         throw new Exception(ex.Message);
                     }
                 }

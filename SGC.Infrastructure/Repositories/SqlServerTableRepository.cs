@@ -7,20 +7,19 @@ using SGC.Domain.Interfaces;
 
 namespace SGC.Infrastructure.Repositories
 {
-    public class SqlServerTableRepository : ITableRepository
+    public class SqlServerTableRepository : Repository<SqlConnection>, ISqlServerRepository
     {
-        private SqlConnection conn = new SqlConnection();
 
-        public IList<Table> GetAllMetaData(string connString)
+        public override async Task<IList<Table>> GetAllMetaData(string connString)
         {
-            conn = new SqlConnection();
-            conn.ConnectionString = connString;
+            Conn = new SqlConnection();
+            Conn.ConnectionString = connString;
             try
             {
                 //Verifica se a conexao está fechada ou já está aberta antes de conectar
-                if (conn.State == System.Data.ConnectionState.Closed)
+                if (Conn.State == System.Data.ConnectionState.Closed)
                 {
-                    conn.Open();
+                    Conn.Open();
                 }
             }
             catch (Exception ex)
@@ -33,11 +32,11 @@ namespace SGC.Infrastructure.Repositories
             string tableName = "";
             string catalog = "";
 
-            SqlCommand command = new SqlCommand("select TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH from INFORMATION_SCHEMA.COLUMNS order by TABLE_NAME", conn);
-            SqlDataReader reader = command.ExecuteReader();
+            SqlCommand command = new SqlCommand("select TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH from INFORMATION_SCHEMA.COLUMNS order by TABLE_NAME", Conn);
+            SqlDataReader reader = await command.ExecuteReaderAsync();
             try
             {
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     catalog = reader.GetValue(0).ToString();
                     //tableName = reader.GetValue(2).ToString();
@@ -67,24 +66,24 @@ namespace SGC.Infrastructure.Repositories
             }
             finally
             {
-                conn.Close();
+                Conn.Close();
                 reader.Close();  
             }
             
-            //conn.Close ();
+            //Conn.Close ();
             //tables.Add(new Table() { Catalog=catalog, Name=tableName, Columns= columns });
             //List<Table> tables = TableMapper.ColumnsToTableList(columns, catalog);
             //return tables;
         }
 
-        public Table GetMetaDataByTableName(string connString ,string tableName)
+        public override async Task<Table> GetMetaDataByTableName(string connString ,string tableName)
         {
-            conn = new SqlConnection();
-            conn.ConnectionString = connString;
+            Conn = new SqlConnection();
+            Conn.ConnectionString = connString;
             try
             {
                 //Verifica se a conexao está fechada ou já está aberta antes de conectar
-                if (conn.State == System.Data.ConnectionState.Closed){ conn.Open(); }
+                if (Conn.State == System.Data.ConnectionState.Closed){ Conn.Open(); }
             }
             catch (Exception ex)
             {
@@ -96,12 +95,12 @@ namespace SGC.Infrastructure.Repositories
             var columns = new List<Column>();
             string catalog = "";
 
-            using (SqlCommand command = new SqlCommand($"select TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='{tableName}'", conn))
+            using (SqlCommand command = new SqlCommand($"select TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='{tableName}'", Conn))
             {
-                SqlDataReader reader = command.ExecuteReader();
+                SqlDataReader reader = await command.ExecuteReaderAsync();
                 try
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         catalog = reader.GetValue(0).ToString();
                         //tableName = reader.GetValue(2).ToString();
@@ -124,7 +123,7 @@ namespace SGC.Infrastructure.Repositories
                 }
                 finally
                 {
-                    conn.Close();
+                    Conn.Close();
                     reader.Close();
                 }
 

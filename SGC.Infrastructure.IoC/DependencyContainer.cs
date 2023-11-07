@@ -15,6 +15,7 @@ namespace SGC.Infrastructure.IoC
             //services.AddScoped<ITableRepository, OracleTableRepository>();
             services.AddScoped<IClassBuilderService, ClassBuilderService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IDatabaseService, DatabaseService>();
         }
     }
 }

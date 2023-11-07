@@ -8,7 +8,7 @@ namespace SGC.Domain.Validators
         public FormConnectionValidator()
         {
             RuleFor(fc => fc.Sgbd).NotEqual(0).WithMessage("O sgbd nao pode ser 0!");
-            RuleFor(fc => fc.ConnString).NotEmpty().WithMessage("A connection string deve ser preenchida!");
+            RuleFor(fc => fc.ConnString).NotEmpty().WithMessage("A connection string não pode ser vazia!");
         }
     }
 }
