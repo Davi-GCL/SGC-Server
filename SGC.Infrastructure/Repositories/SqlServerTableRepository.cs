@@ -40,8 +40,7 @@ namespace SGC.Infrastructure.Repositories
                 {
                     catalog = reader.GetValue(0).ToString();
                     //tableName = reader.GetValue(2).ToString();
-                    var teste = new Column();
-                    
+                                   
                     var column = new Column()
                     {
                         TableName = reader.GetValue(1).ToString(),

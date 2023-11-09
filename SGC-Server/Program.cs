@@ -16,6 +16,8 @@ namespace SGC_Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            DependencyContainer.RegisterServices(builder.Services, builder.Configuration);
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin",
@@ -27,7 +29,6 @@ namespace SGC_Server
                     });
             });
 
-            DependencyContainer.RegisterServices(builder.Services, builder.Configuration);
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -37,8 +38,6 @@ namespace SGC_Server
                 app.UseSwaggerUI();
 
             }
-            app.UseCors("AllowSpecificOrigin");
-
             app.UseCors("AllowSpecificOrigin");
 
             app.UseHttpsRedirection();

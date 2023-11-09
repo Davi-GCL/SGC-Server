@@ -94,7 +94,7 @@ namespace SGC.Infrastructure.Repositories
                 //Verifica se a conexao está fechada ou já está aberta antes de conectar
                 if (Conn.State == System.Data.ConnectionState.Closed)
                 {
-                    Conn.OpenAsync();
+                    Conn.Open();
                 }
             }
             catch (Exception ex)
