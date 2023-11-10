@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Text;
 using SGC.Domain.Entities;
 using SGC.Domain.Interfaces;
 
 
 namespace SGC.Infrastructure.Repositories
 {
-    public class SqlServerTableRepository : Repository<SqlConnection>, ISqlServerRepository
+    public class SqlServerTableRepository : Repository<SqlConnection>
     {
 
         public override async Task<IList<Table>> GetAllMetaData(string connString)
@@ -40,8 +41,7 @@ namespace SGC.Infrastructure.Repositories
                 {
                     catalog = reader.GetValue(0).ToString();
                     //tableName = reader.GetValue(2).ToString();
-                    var teste = new Column();
-                    
+                                   
                     var column = new Column()
                     {
                         TableName = reader.GetValue(1).ToString(),
@@ -128,6 +128,73 @@ namespace SGC.Infrastructure.Repositories
                 }
 
                 return new Table() { Catalog = catalog, Name = tableName, Columns = columns };
+            }
+        }
+
+        public override async Task<List<Table>> GetMetaDataByTableNameList(string connString, List<string> tableNameList)
+        {
+            Conn = new SqlConnection();
+            Conn.ConnectionString = connString;
+            try
+            {
+                //Verifica se a conexao está fechada ou já está aberta antes de conectar
+                if (Conn.State == System.Data.ConnectionState.Closed) { Conn.Open(); }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            //cmd.CommandText = "SELECT * from INFORMATION_SCHEMA.TABLES";
+            string whereParams = "";
+            var columns = new List<Column>();
+            string tableName = "";
+            string catalog = "";
+
+            for(var i = 0; i < tableNameList.Count(); i++)
+            {
+                whereParams += $"TABLE_NAME = '{tableNameList[i]}'";
+                if(i < tableNameList.Count()-1)
+                {
+                    whereParams += " OR ";
+                }
+            } 
+
+            SqlCommand command = new SqlCommand($"select TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH from INFORMATION_SCHEMA.COLUMNS where {whereParams} order by TABLE_NAME", Conn);
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            try
+            {
+                while (await reader.ReadAsync())
+                {
+                    catalog = reader.GetValue(0).ToString();
+                    //tableName = reader.GetValue(2).ToString();
+
+                    var column = new Column()
+                    {
+                        TableName = reader.GetValue(1).ToString(),
+                        Name = reader.GetValue(2).ToString(),
+                        IsPrimaryKey = false,
+                        IsNullable = reader.GetValue(3).ToString() == "YES" ? true : false,
+                        Type = reader.GetValue(4).ToString(),
+                        CharMaxLength = reader.GetValue(5) != DBNull.Value ? (int)reader.GetValue(5) : null,
+                    };
+                    columns.Add(column);
+                }
+                List<Table> tables = TableMapper.ColumnsToTableList(columns, catalog);
+                return tables;
+            }
+            catch (ArgumentException)
+            {
+                throw new Exception("Columns not found");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                Conn.Close();
+                reader.Close();
             }
         }
     }
