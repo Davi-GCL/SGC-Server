@@ -38,8 +38,4 @@ public class TableMapper
         return tables;
     }
 
-    public static List<Table> ColumnsToTableListLinq(List<Column> columns, string catalog)
-    {
-        return new List<Table>();
-    }
 }

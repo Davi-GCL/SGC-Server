@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SGC.Domain.Interfaces
 {
-    public interface IOracleRepository: IRepository
+    public interface IOracleRepository : IRepository
     {
         Task<IList<Table>> GetAllMetaData(string connString);
         Task<Table> GetMetaDataByTableName(string connString, string tableName);

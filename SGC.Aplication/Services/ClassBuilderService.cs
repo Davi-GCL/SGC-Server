@@ -13,7 +13,7 @@ namespace SGC.Aplication.Services
     {
         private string ClassName { get; set; }
         //private Dictionary<string, string> FieldsDict = new Dictionary<string, string>();
-        private Dictionary<string, string> SqlServerTypes = new Dictionary<string, string>()
+        private readonly Dictionary<string, string> SqlServerTypes = new Dictionary<string, string>()
         {
             {"int","int"}, 
             {"tinyint","byte"},
@@ -29,7 +29,7 @@ namespace SGC.Aplication.Services
             {"clob","String"},
             {"nclob","String"}
         };
-        private Dictionary<string, string> OracleTypes = new Dictionary<string, string>()
+        private readonly Dictionary<string, string> OracleTypes = new Dictionary<string, string>()
         {
             {"integer","int"},
             {"varchar", "string"},
@@ -83,27 +83,48 @@ namespace SGC.Aplication.Services
             
             Dictionary<string, string> FieldsDict = new Dictionary<string, string>();
 
-            switch(dbType)
+            foreach ( var c in table.Columns)
             {
-                case 1:
-                    foreach (var c in table.Columns)
-                    {
+                switch (dbType)
+                {
+                    case 1:
                         type = this.SqlServerTypes[c.Type.ToLower()];
-                        if (c.IsNullable == true) { type += "?"; } //Se a coluna for anulavel, adiciona a indicação de tipo anulavel do C#
-                        FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
-                    }
-                break;
-                case 2:
-                    foreach (var c in table.Columns)
-                    {
+                        break;
+                    case 2:
                         type = this.OracleTypes[c.Type.ToLower()];
-                        if (c.IsNullable == true) { type += "?"; } //Se a coluna for anulavel, adiciona a indicação de tipo anulavel do C#
-                        FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
-                    }
-                break;
-                default:
-                    throw new Exception("sgbd invalido!");
+                        break;
+                    default:
+                        throw new Exception("sgbd invalido!");
+                }
+
+                if (c.IsNullable == true) { type += "?"; } //Se a coluna for anulavel, adiciona a indicação de tipo anulavel do C#
+
+                //Tenta adicionar um par chave-valor, porém se a chave já existir altera o valor da chave:
+                try { FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type); }
+                catch(Exception) { FieldsDict[CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name)] = type ; }
             }
+
+            //switch(dbType)
+            //{
+            //    case 1:
+            //        foreach (var c in table.Columns)
+            //        {
+            //            type = this.SqlServerTypes[c.Type.ToLower()];
+            //            if (c.IsNullable == true) { type += "?"; } //Se a coluna for anulavel, adiciona a indicação de tipo anulavel do C#
+            //            FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
+            //        }
+            //    break;
+            //    case 2:
+            //        foreach (var c in table.Columns)
+            //        {
+            //            type = this.OracleTypes[c.Type.ToLower()];
+            //            if (c.IsNullable == true) { type += "?"; } //Se a coluna for anulavel, adiciona a indicação de tipo anulavel do C#
+            //            FieldsDict.Add(CultureInfo.CurrentCulture.TextInfo.ToTitleCase(c.Name), type);
+            //        }
+            //    break;
+            //    default:
+            //        throw new Exception("sgbd invalido!");
+            //}
 
             return FieldsDict;
         }

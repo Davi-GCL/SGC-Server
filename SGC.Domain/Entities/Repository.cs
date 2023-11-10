@@ -13,5 +13,6 @@ namespace SGC.Domain.Entities
         protected T Conn;
         public abstract Task<IList<Table>> GetAllMetaData(string connString);
         public abstract Task<Table> GetMetaDataByTableName(string connString, string tableName);
+        public abstract Task<List<Table>> GetMetaDataByTableNameList(string connString, List<string> tableNameList);
     }
 }
