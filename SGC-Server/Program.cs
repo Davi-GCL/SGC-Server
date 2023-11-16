@@ -18,12 +18,15 @@ namespace SGC_Server
 
             DependencyContainer.RegisterServices(builder.Services, builder.Configuration);
 
+            string origin = builder.Configuration.GetValue<string>("AllowedOrigin");
+
+            // Configure domains origins that cors will allow to requests 
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin",
                     builder =>
                     {
-                        builder.WithOrigins("http://localhost:4200") // Troque para o domínio do seu aplicativo Angular
+                        builder.WithOrigins(origin) // Troque para o domínio do seu aplicativo Angular
                             .AllowAnyHeader()
                             .AllowAnyMethod();
                     });
@@ -38,7 +41,13 @@ namespace SGC_Server
                 app.UseSwaggerUI();
 
             }
-            app.UseCors("AllowSpecificOrigin");
+
+            app.UseCors(c =>
+            {
+                c.AllowAnyOrigin();
+                c.AllowAnyMethod();
+                c.AllowAnyHeader();
+            });
 
             app.UseHttpsRedirection();
 
